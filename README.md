@@ -8,6 +8,10 @@ PDF → Claude (saída estruturada, schema Pydantic) → validadores → JSON fi
 
 Só usa documentos **sintéticos** (nomes fictícios). Documento real de cliente não entra neste repositório.
 
+![A mesma invoice em três tipos de PDF: com texto, scan leve e scan pesado](docs/img/mesma_invoice_tres_tipos.jpg)
+
+*A mesma invoice sintética em três tipos de PDF. Os dois scans não têm camada de texto: o Claude precisa ler a imagem.*
+
 ## O que o projeto entrega
 
 1. **Schemas** (`schemas.py`): um por documento, com tipos e campos obrigatórios.
@@ -46,6 +50,12 @@ Três tipos, com os mesmos dados e gabarito dos limpos:
 - **scan_pesado** (`P`): só imagem, 100 dpi, rotação até 2,5°, ruído forte, baixo contraste, JPEG comprimido e carimbo.
 
 O PDF escaneado não tem texto, então o modo `auto` cai para `pdf` (consome mais tokens). O relatório separa o resultado por tipo.
+
+![Recorte ampliado do scan pesado, com o contêiner e o lacre onde o Claude trocou um dígito](docs/img/digito_trocado_scan_pesado.jpg)
+
+*Scan pesado, em uma das rodadas: o Claude leu 8044**2**50 em vez de 8044**3**50 no contêiner e 27 em vez de 22 no lacre. O dígito verificador do contêiner pegou o erro e mandou o conjunto para revisão. O lacre não tem dígito verificador.*
+
+As imagens são geradas por `python scripts/imagens_readme.py`.
 
 ### Sem chave de API: usando o Claude Code (assinatura)
 
