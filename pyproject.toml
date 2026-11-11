@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "extrator-comex"
+version = "0.1.0"
+description = "Extração de Invoice, Packing List e BL em JSON validado, com eval de acurácia por campo"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2",
+    "anthropic>=1",
+    "reportlab>=4",
+    "pypdf>=5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
