@@ -100,6 +100,18 @@ Cada conjunto de 3 documentos gasta cerca de 14 mil tokens.
 - O eval **simulado** devolve o gabarito com erros sorteados. Ele só prova que a régua funciona. **Não mede o Claude.**
 - Os 100% acima vêm do Claude Code com o pipeline oficial, mas só em **10 conjuntos sintéticos**. Os PDFs são limpos (texto gerado, sem scan, sem carimbo, sem layout de verdade). Em documento real a acurácia será menor. O próximo passo honesto é montar um conjunto anonimizado de documentos reais.
 - **PDFs sujos** (haiku, low, 6 conjuntos: 2 de cada tipo, nenhum com defeito injetado): `tabela` e `scan_leve` 100% corretos; `scan_pesado` 0 de 2 conjuntos corretos, com troca de dígitos (1↔7, 4↔5, 8↔2) em quantidade, peso, contêiner e lacre. Os validadores mandaram os 2 para revisão (0 erros silenciosos), mas o lacre não tem dígito verificador e só seria pego por acaso. Na primeira rodada o `bl.navio` saiu com o número da viagem junto; a regra foi para o prompt e o campo foi a 100%. Amostra pequena: serve de indício, não de taxa. Relatórios em `results/sujo` (antes do ajuste) e `results/sujo_v2`.
+- **Modelo no scan pesado** (6 conjuntos, 18 chamadas cada, modo `pdf`):
+
+  | | Haiku, low | Sonnet, medium |
+  |---|---|---|
+  | Documentos 100% corretos (invoice / romaneio / BL) | 67% / 0% / 17% | 83% / 33% / 67% |
+  | Conjuntos com algum erro de extração | 6 de 6 | 5 de 6 |
+  | Conjuntos enviados para revisão | 6 de 6 | 4 de 6 |
+  | **Erros que passaram sem revisão** | 0 | **1** |
+  | Tokens por chamada (média) | 12.631 | 11.940 |
+  | Preço de lista das 18 chamadas | US$ 0,03 | US$ 0,42 |
+
+  O Sonnet acerta mais (contêiner 100%), mas manda menos conjuntos para revisão e deixou passar 1 erro. Os campos que sobram errados, como lacre e data, não têm conferência por código. Melhor extração não dispensa a conferência: o que mais importa é o número de erros silenciosos, não o acerto. Mesma ressalva de sempre: amostra pequena, sem defeitos injetados além de 1, resultado varia de uma rodada para outra. Relatórios em `results/sujo_pesado` e `results/sujo_pesado_sonnet`.
 - O modo `texto` não foi testado em PDF escaneado. O modo `pdf` também só foi testado em PDFs sintéticos com texto.
 - O extrator `claude-api` **ainda não foi executado** (faltou chave). Os testes dele usam um cliente falso e conferem o fluxo: PDF enviado, nova tentativa quando a validação falha, recusa e corte tratados.
 - Se a API recusar o pedido (`stop_reason = refusal`), o documento vai para revisão. Não há modelo de fallback configurado.
