@@ -12,6 +12,46 @@ Só usa documentos **sintéticos** (nomes fictícios). Documento real de cliente
 
 *A mesma invoice sintética em três tipos de PDF. Os dois scans não têm camada de texto: o Claude precisa ler a imagem.*
 
+## O que ele faz, em um exemplo
+
+**Entra:** 3 PDFs (invoice, packing list e BL). **Sai:** os dados dos três em JSON e a conferência entre eles.
+
+```bash
+python -m extrator processar --invoice S033_invoice.pdf --packing-list S033_packing_list.pdf --bl S033_bl.pdf
+```
+
+Saída real (Claude Haiku, esforço baixo, conjunto sintético com um defeito injetado: o peso bruto do BL não bate com o do romaneio). Os `...` abreviam o texto aqui; o JSON completo tem todos os campos.
+
+```json
+{
+  "status": "revisar",
+  "documentos": {
+    "invoice": {
+      "numero": "INV-9903", "data": "2026-07-13", "incoterm": "EXW", "moeda": "USD",
+      "itens": [ { "descricao": "Plastic injection mold part", "quantidade": "1478", "total": "14513.96", "...": "..." } ],
+      "total_geral": "113477.48", "...": "..."
+    },
+    "packing_list": { "invoice_numero": "INV-9903", "volumes": 207, "peso_bruto_kg": "7771.23", "...": "..." },
+    "bl": {
+      "numero": "OAL69096899", "peso_bruto_kg": "8159.79",
+      "conteineres": [ { "numero": "XYZU5193897", "lacre": "SL138817" }, "..." ], "...": "..."
+    }
+  },
+  "problemas": [
+    {
+      "codigo": "PESO_BRUTO_DIVERGENTE",
+      "mensagem": "peso bruto: packing list 7771.23 kg, BL 8159.79 kg",
+      "severidade": "erro",
+      "campo": "peso_bruto_kg"
+    }
+  ]
+}
+```
+
+- `status: "ok"` quando tudo bate. `"revisar"` quando algum documento não extrai ou alguma conferência falha, com o motivo em `problemas`.
+- Quem usa só confere os conjuntos marcados como `revisar`, em vez de digitar tudo.
+- Hoje ele não se liga a nenhum sistema: roda no terminal e imprime o JSON. Esse JSON é o formato que um sistema consegue ler, mas a integração não foi construída.
+
 ## O que o projeto entrega
 
 1. **Schemas** (`schemas.py`): um por documento, com tipos e campos obrigatórios.
